@@ -1,7 +1,8 @@
 import socket
 import ssl
+import re
 
-HOST = "www.wikipedia.org"
+HOST = "ru.wikipedia.org"
 
 context = ssl.SSLContext(ssl.PROTOCOL_TLSv1)
 context.verify_mode = ssl.CERT_REQUIRED
@@ -12,7 +13,7 @@ s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 s.settimeout(10)
 ssl_sock = context.wrap_socket(s, server_hostname=HOST)
 ssl_sock.connect((HOST, 443))
-packet = "GET / HTTP/1.1\nHost: " + HOST + "\n\n"
+packet = "GET /wiki/%D0%9A%D0%B0%D0%BB HTTP/1.1\nHost: " + HOST + "\n\n"
 ssl_sock.send(packet)
 End='</html>'
 def recv_end(the_socket):
@@ -31,6 +32,7 @@ def recv_end(the_socket):
                     total_data.pop()
                     break
     return ''.join(total_data)
-print recv_end(ssl_sock)    
+res = recv_end(ssl_sock)    
+print len(re.findall('href="(/wiki[^\"]*)"', res))
 s.close()
 
