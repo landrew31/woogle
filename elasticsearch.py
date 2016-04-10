@@ -1,3 +1,4 @@
 from tagger import getTags
-
-print getTags("omputer programming (often shortened to programming) is a process that leads from an original formulation of a computing problem to executable computer programs. Programming involves activities such as analysis, developing understanding, generating algorithms, verification of requirements of algorithms including their correctness and resources consumption, and implementation (commonly referred to as coding[1][2]) of algorithms in a target")
+from parser import getTextFromUrl
+# print getTextFromUrl('/wiki/Astronomy');
+print getTags(getTextFromUrl('/wiki/Astronomy'))

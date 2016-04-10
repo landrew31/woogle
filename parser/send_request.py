@@ -19,7 +19,8 @@ ssl_sock.connect((HOST, 443))
 def recv_end(the_socket):
     total_data=[];data=''
     while True:
-            data=the_socket.recv(8192)
+            data=the_socket.recv(4096)
+            data = re.sub("^[0-9abcdef]{1,4}"+ chr(13)+"\n", '', data)
             if End in data:
                 total_data.append(data)
                 break
@@ -39,7 +40,3 @@ def getHtml(url):
     ssl_sock.send(packet)  
     res = recv_end(ssl_sock)
     return res
-
-# print len(re.findall('href="(/wiki[^\"]*)"', res))
-# s.close()
-
