@@ -10,10 +10,6 @@ context.verify_mode = ssl.CERT_REQUIRED
 context.check_hostname = True
 context.load_default_certs()
 
-s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-s.settimeout(10)
-ssl_sock = context.wrap_socket(s, server_hostname=HOST)
-ssl_sock.connect((HOST, 443))
 
 
 def recv_end(the_socket):
@@ -21,6 +17,7 @@ def recv_end(the_socket):
     while True:
             data=the_socket.recv(4096)
             data = re.sub("^[0-9abcdef]{1,4}"+ chr(13)+"\n", '', data)
+            data = re.sub("\r\n", '', data)
             if End in data:
                 total_data.append(data)
                 break
@@ -37,6 +34,16 @@ def recv_end(the_socket):
 
 def getHtml(url):
     packet = "GET " + url + " HTTP/1.1\nHost: " + HOST + "\n\n"
+    s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    s.settimeout(10)    
+    ssl_sock = context.wrap_socket(s, server_hostname=HOST)
+    ssl_sock.connect((HOST, 443))
     ssl_sock.send(packet)  
     res = recv_end(ssl_sock)
+    s.close()
     return res
+
+def getUrls(html):
+    return list(set(re.findall('href="(/wiki/[^\":#]*)"', html)))
+
+  

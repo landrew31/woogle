@@ -39,7 +39,9 @@ def getHtml(url):
     ssl_sock.send(packet)  
     res = recv_end(ssl_sock)
     return res
+def getUrls(html):
+    return re.findall('href="(/wiki/[^\":#]*)"', html)
 
-# print len(re.findall('href="(/wiki[^\"]*)"', res))
+print getUrls(getHtml('/wiki/Astronomy'))
 # s.close()
 
