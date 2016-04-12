@@ -1,16 +1,24 @@
-from datetime import datetime
 from elasticsearch import Elasticsearch
 from pprint import pprint
 from tagger import getTags
-from parser import getTextFromUrl, getUrls, getHtml
+from parser import getTextFromHtml
 # print getTextFromUrl('/wiki/Astronomy');
 
-def getObj(url):
-	return getTags(getTextFromUrl(url))
+
 
 es = Elasticsearch()
-# urls = getUrls(getHtml('/wiki/Astronomy'))
-# print len(urls)
+
+def saveToElastic(html, url):
+	text = getTextFromHtml(html, url)
+	tags = getTags(text)
+	es.index(index="articles", doc_type="data", body=tags)
+
+def isArticleInDB(url):
+	res = es.search(index="articles", doc_type="data", body={"query": {"term": {"url": url}}})
+	return res['hits']['total'] > 0
+
+# print isArticleInDB('/wiki/History_of_the_United_States')	
+
 # for url in urls:
 # 	# getObj(url)
 # 	es.index(index="articles", doc_type="data", body=getObj(url))
@@ -72,4 +80,4 @@ def search_art(text):
 	}
 	res = es.search(index="articles", doc_type="data", body=search_obj)
 	pprint(res)
-search_art("three body problem")	
+# search_art("famous writer")	

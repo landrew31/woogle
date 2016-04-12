@@ -1,47 +1,12 @@
-import socket
-import ssl
-import re
+from multithreading import ArticlesParse
 
-HOST = "en.wikipedia.org"
-End = '</html>'
-
-context = ssl.SSLContext(ssl.PROTOCOL_TLSv1)
-context.verify_mode = ssl.CERT_REQUIRED
-context.check_hostname = True
-context.load_default_certs()
-
-s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-s.settimeout(10)
-ssl_sock = context.wrap_socket(s, server_hostname=HOST)
-ssl_sock.connect((HOST, 443))
+urls = ['/wiki/History_of_the_United_States', '/wiki/Ernest_Hemingway', '/wiki/Jupiter', '/wiki/Astronomy_in_medieval_Islam', '/wiki/Radio_astronomy', '/wiki/Tibetan_astronomy', '/wiki/Reionization', '/wiki/Aristarchus_of_Samos', '/wiki/Stellar_nucleosynthesis', '/wiki/Tidal_acceleration', '/wiki/CRC_Press', '/wiki/Hubble_Space_Telescope', '/wiki/Joseph_Louis_Lagrange', '/wiki/Wave', '/wiki/Astrophotography', '/wiki/Gravitational_waves', '/wiki/Sidewalk_astronomy', '/wiki/Encyclopedia_of_the_History_of_Arabic_Science', '/wiki/Interstellar_dust', '/wiki/Volcanism', '/wiki/Observational_astronomy', '/wiki/Near-ultraviolet', '/wiki/Cosmogony', '/wiki/Apparent_magnitude', '/wiki/Chronology_of_the_Universe', '/wiki/Keck_Observatory', '/wiki/Electron', '/wiki/Bremsstrahlung_radiation', '/wiki/Slovakia', '/wiki/Amateur_telescope_making', '/wiki/Natural_satellite', '/wiki/Big_bang', '/wiki/Very_Large_Array', '/wiki/Precession', '/wiki/Planetary_differentiation', '/wiki/Glossary_of_astronomy', '/wiki/Neptune', '/wiki/Population_III_stars', '/wiki/Fine-tuned_universe', '/wiki/Chinese_astronomy', '/wiki/Ja%27far_ibn_Muhammad_Abu_Ma%27shar_al-Balkhi', '/wiki/Gravitation', '/wiki/Gamma-ray_astronomy', '/wiki/Circumstellar_disk', '/wiki/Chambers_Book_of_Days']
+print len(urls)
+for i, url in enumerate(urls):
+    thread = ArticlesParse(i, url)
+    thread.start()
 
 
-def recv_end(the_socket):
-    total_data=[];data=''
-    while True:
-            data=the_socket.recv(8192)
-            if End in data:
-                total_data.append(data)
-                break
-            total_data.append(data)
-            if len(total_data)>1:
-                #check if end_of_data was split
-                last_pair=total_data[-2]+total_data[-1]
-                if End in last_pair:
-                    total_data[-2]=last_pair[:last_pair.find(End)]
-                    total_data.pop()
-                    break
-    return ''.join(total_data)
 
-
-def getHtml(url):
-    packet = "GET " + url + " HTTP/1.1\nHost: " + HOST + "\n\n"
-    ssl_sock.send(packet)  
-    res = recv_end(ssl_sock)
-    return res
-def getUrls(html):
-    return re.findall('href="(/wiki/[^\":#]*)"', html)
-
-print getUrls(getHtml('/wiki/Astronomy'))
-# s.close()
+print "Exiting Main Thread"
 

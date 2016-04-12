@@ -1,24 +1,22 @@
 # -*- coding: utf-8 -*-
 from send_request import getHtml
-from bs4 import BeautifulSoup
 import sys, re
 reload(sys)
 sys.setdefaultencoding('utf8')
 
 
-def getTextFromUrl(url):
-	html_doc = getHtml(url)
-	soup = BeautifulSoup(html_doc, 'html.parser')
-	text = soup.find_all("p")
+def getTextFromHtml(html_doc, url):
+	
+	text = re.findall('<p>(.*)</p>', html_doc) 
 	try:
-		title = soup.select("#firstHeading")[0].get_text()
+		title = re.findall('id="firstHeading"[^>]*>([^<]*)<', html_doc)[0]
 	except:
-		title = ''	
+		title = ''
 	new_text = ''
 	for p in text:
-		new_text += p.get_text()
+		new_text += re.sub("(<[^<]*>)", '', p);
 	clear_text = re.sub("\[\d+\]", '', new_text)
 	return {"text": clear_text, "title": title, "url": url}
 
 
-# print getTextFromUrl('/wiki/Astronomy')
+# print getTextFromHtml(getHtml('/wiki/Astronomy'), '/wiki/Astronomy')['title']
