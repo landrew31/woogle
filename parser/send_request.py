@@ -37,9 +37,12 @@ def getHtml(url):
     s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     s.settimeout(10)    
     ssl_sock = context.wrap_socket(s, server_hostname=HOST)
-    ssl_sock.connect((HOST, 443))
-    ssl_sock.send(packet)  
-    res = recv_end(ssl_sock)
+    try: 
+        ssl_sock.connect((HOST, 443))
+        ssl_sock.send(packet)  
+        res = recv_end(ssl_sock)
+    except:
+        res = 'not found'    
     s.close()
     return res
 

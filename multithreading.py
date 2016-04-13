@@ -3,7 +3,7 @@ from sets import Set
 from Queue import Queue
 from parser import getUrls, getHtml
 from search import saveToElastic, isArticleInDB
-#URLS = []
+URLS = []
 EXEC = Set([])
 TOTAL = 0
 
@@ -21,7 +21,7 @@ def threader():
         url = q.get()
 
         # Run the example job with the avail worker in queue (thread)
-        proccessArticle(url)
+        proccessArticle2(url)
 
         # completed with the job
         q.task_done()
@@ -30,16 +30,16 @@ def threader():
 
         
 
-for x in range(30):
-     t = threading.Thread(target=threader)
+# for x in range(30):
+#      t = threading.Thread(target=threader)
 
-     # classifying as a daemon, so they will die when the main dies
-     t.daemon = True
+#      # classifying as a daemon, so they will die when the main dies
+#      t.daemon = True
 
-     # begins, must come after daemon definition
-     t.start()
+#      # begins, must come after daemon definition
+#      t.start()
 
-def proccessArticle(url):
+def proccessArticle2(url):
     global TOTAL 
     if(isArticleInDB(url)):
         return 1
@@ -57,7 +57,7 @@ def proccessArticle(url):
     with print_lock:
         print TOTAL
     return 0
-
+'''
 urls = ['/wiki/History_of_the_United_States', '/wiki/Ernest_Hemingway', '/wiki/Jupiter', '/wiki/Astronomy_in_medieval_Islam', '/wiki/Radio_astronomy', '/wiki/Tibetan_astronomy', '/wiki/Reionization', '/wiki/Aristarchus_of_Samos', '/wiki/Stellar_nucleosynthesis', '/wiki/Tidal_acceleration', '/wiki/CRC_Press', '/wiki/Hubble_Space_Telescope', '/wiki/Joseph_Louis_Lagrange', '/wiki/Wave', '/wiki/Astrophotography', '/wiki/Gravitational_waves', '/wiki/Sidewalk_astronomy', '/wiki/Encyclopedia_of_the_History_of_Arabic_Science', '/wiki/Interstellar_dust', '/wiki/Volcanism', '/wiki/Observational_astronomy', '/wiki/Near-ultraviolet', '/wiki/Cosmogony', '/wiki/Apparent_magnitude', '/wiki/Chronology_of_the_Universe', '/wiki/Keck_Observatory', '/wiki/Electron', '/wiki/Bremsstrahlung_radiation', '/wiki/Slovakia', '/wiki/Amateur_telescope_making', '/wiki/Natural_satellite', '/wiki/Big_bang', '/wiki/Very_Large_Array', '/wiki/Precession', '/wiki/Planetary_differentiation', '/wiki/Glossary_of_astronomy', '/wiki/Neptune', '/wiki/Population_III_stars', '/wiki/Fine-tuned_universe', '/wiki/Chinese_astronomy', '/wiki/Ja%27far_ibn_Muhammad_Abu_Ma%27shar_al-Balkhi', '/wiki/Gravitation', '/wiki/Gamma-ray_astronomy', '/wiki/Circumstellar_disk', '/wiki/Chambers_Book_of_Days']
 print len(urls)
 # 100 jobs assigned.
@@ -79,7 +79,7 @@ class ArticlesParse (threading.Thread):
         self.forever()
         print "Exiting " + str(self.threadID)
     def forever(self):
-        while len(URLS) and TOTAL < 2000:
+        while len(URLS):
             url = URLS.pop()
             proccessArticle(url, self.threadID)  
 def proccessArticle(url, threadID):
@@ -95,10 +95,12 @@ def proccessArticle(url, threadID):
     all_urls = getUrls(html)
     URLS += all_urls
     saveToElastic(html, url)
+    EXEC.remove(url) 
     TOTAL += 1  
-    print TOTAL, " ---- ",str(threadID)
+    with print_lock:
+        print TOTAL
     return 0
 
-'''
-# urls = getUrls(getHtml('/wiki/Astronomy'))
+# proccessArticle('/wiki/Astronomy', 1)
+# urls = getUrls(getHtml('/wiki/Geography_of_China'))
 # print urls

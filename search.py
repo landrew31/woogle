@@ -80,4 +80,4 @@ def search_art(text):
 	}
 	res = es.search(index="articles", doc_type="data", body=search_obj)
 	pprint(res)
-# search_art("famous writer")	
+search_art("oxygen molecule")	
