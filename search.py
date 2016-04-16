@@ -14,7 +14,7 @@ def saveToElastic(html, url):
 	es.index(index="articles", doc_type="data", body=tags)
 
 def isArticleInDB(url):
-	res = es.search(index="articles", doc_type="data", body={"query": {"term": {"url": url}}})
+	res = es.search(index="articles", doc_type="data", body={"query": {"match": {"url.raw": url}}})
 	return res['hits']['total'] > 0
 
 # print isArticleInDB('/wiki/History_of_the_United_States')	
@@ -80,4 +80,4 @@ def search_art(text):
 	}
 	res = es.search(index="articles", doc_type="data", body=search_obj)
 	pprint(res)
-search_art("oxygen molecule")	
+# search_art("oxygen molecule")	

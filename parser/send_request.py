@@ -33,17 +33,17 @@ def recv_end(the_socket):
 
 
 def getHtml(url):
-    packet = "GET " + url + " HTTP/1.1\nHost: " + HOST + "\n\n"
-    s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    s.settimeout(10)    
-    ssl_sock = context.wrap_socket(s, server_hostname=HOST)
+    packet = "GET " + url + " HTTP/1.1\nHost: " + HOST + "\n\n"   
     try: 
+        s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        s.settimeout(10) 
+        ssl_sock = context.wrap_socket(s, server_hostname=HOST)
         ssl_sock.connect((HOST, 443))
         ssl_sock.send(packet)  
         res = recv_end(ssl_sock)
+        s.close()
     except:
         res = 'not found'    
-    s.close()
     return res
 
 def getUrls(html):

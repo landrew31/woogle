@@ -102,5 +102,5 @@ def proccessArticle(url, threadID):
     return 0
 
 # proccessArticle('/wiki/Astronomy', 1)
-# urls = getUrls(getHtml('/wiki/Geography_of_China'))
+# urls = getUrls(getHtml('/wiki/Cocaine'))
 # print urls
