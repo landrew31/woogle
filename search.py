@@ -2,7 +2,7 @@ from elasticsearch import Elasticsearch
 from pprint import pprint
 from tagger import getTags
 from parser import getTextFromHtml
-# print getTextFromUrl('/wiki/Astronomy');
+
 
 
 
@@ -17,17 +17,28 @@ def isArticleInDB(url):
 	res = es.search(index="articles", doc_type="data", body={"query": {"match": {"url.raw": url}}})
 	return res['hits']['total'] > 0
 
-# print isArticleInDB('/wiki/History_of_the_United_States')	
 
-# for url in urls:
-# 	# getObj(url)
-# 	es.index(index="articles", doc_type="data", body=getObj(url))
-# 	print urls.index(url) 
-# es.index(index="articles", doc_type="data", body={"any": "data", "timestamp": datetime.now()})
-# print getObj('/wiki/Astronomy')
-# es.index(index="articles", doc_type="data", body=getObj('/wiki/Astronomy'))
-# print getTags(str(getTextFromUrl('/wiki/History_of_the_United_States')))
-# print getTags(str(getTextFromUrl('/wiki/Ernest_Hemingway')))
+def initEs():
+	es.indices.delete(index="articles", ignore=[400, 404])
+	index_body = \
+	{
+	  "mappings": {
+	    "data": {
+	      "properties": {
+	        "url" : {
+	          "type": "string",
+	          "fields": {
+	            "raw" : {
+	              "type": "string",
+	              "index": "not_analyzed"
+	            }
+	          }
+	        }
+	      }
+	    }
+	  }
+	}
+	es.indices.create(index="articles", body=index_body, ignore=[400])
 
 def search_art(text):
 	tags = text.split(" ")
@@ -80,4 +91,8 @@ def search_art(text):
 	}
 	res = es.search(index="articles", doc_type="data", body=search_obj)
 	pprint(res)
+
+
 # search_art("oxygen molecule")	
+
+
