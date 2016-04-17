@@ -1,2 +1,2 @@
-stemming==1.0.1
+topia.termextract>=1.1.0
 elasticsearch>=2.0.0

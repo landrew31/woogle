@@ -37,9 +37,10 @@ def proccessArticle(url, threadID):
     URLS += all_urls
     saveToElastic(html, url)
     EXEC.remove(url) 
-    TOTAL += 1  
-    with print_lock:
-        print TOTAL
+    TOTAL += 1 
+    if(TOTAL % 1000 == 0): 
+        with print_lock:
+            print TOTAL
     return 0
 
 def printUrls_fromUrl(url):
