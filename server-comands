@@ -12,6 +12,7 @@ sudo ./configure
 sudo make altinstall
 sudo apt-get install openjdk-7-jre
 sudo wget https://download.elastic.co/elasticsearch/release/org/elasticsearch/distribution/deb/elasticsearch/2.3.1/elasticsearch-2.3.1.deb
+sudo dpkg -i elasticsearch-2.3.1.deb
 sudo service elasticsearch start
 git clone https://github.com/landrew31/woogle.git
 cd woogle

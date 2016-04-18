@@ -5,10 +5,7 @@ import re
 HOST = "en.wikipedia.org"
 End = '</html>'
 
-context = ssl.SSLContext(ssl.PROTOCOL_TLSv1)
-context.verify_mode = ssl.CERT_REQUIRED
-context.check_hostname = True
-context.load_default_certs()
+
 
 
 
@@ -35,15 +32,25 @@ def recv_end(the_socket):
 def getHtml(url):
     packet = "GET " + url + " HTTP/1.1\nHost: " + HOST + "\n\n"   
     try: 
+        context = ssl.SSLContext(ssl.PROTOCOL_TLSv1)
+        context.verify_mode = ssl.CERT_REQUIRED
+        context.check_hostname = True
+        context.load_default_certs()
         s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        print "create"
         s.settimeout(10) 
         ssl_sock = context.wrap_socket(s, server_hostname=HOST)
+        print "wrap"
         ssl_sock.connect((HOST, 443))
-        ssl_sock.send(packet)  
+        print "connect"
+        ssl_sock.send(packet) 
+        print "send" 
         res = recv_end(ssl_sock)
         s.close()
+        context.remove()
     except:
         res = 'not found'    
+
     return res
 
 def getUrls(html):
