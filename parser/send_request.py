@@ -37,14 +37,10 @@ def getHtml(url):
         context.check_hostname = True
         context.load_default_certs()
         s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        print "create"
         s.settimeout(10) 
         ssl_sock = context.wrap_socket(s, server_hostname=HOST)
-        print "wrap"
         ssl_sock.connect((HOST, 443))
-        print "connect"
         ssl_sock.send(packet) 
-        print "send" 
         res = recv_end(ssl_sock)
         s.close()
         context.remove()

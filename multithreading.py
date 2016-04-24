@@ -1,70 +1,52 @@
-
-import redis, time, threading, multiprocessing
+from redis_queue_controller import RedisQueue
+import redis, time, threading
 from parser import getUrls, getHtml
-from search import saveToElastic, isArticleInDB, initEs
+from search import saveToElastic, isArticleInDB
 
-WRITE = 10
-THREADS = 1000
-PROCESS = 1
+THREADS = 100
 TOTAL = 0
-EXEC = redis.StrictRedis(host='localhost', port=6379, db=0)
-
-print_lock = threading.Lock()
+REDIS = redis.StrictRedis(host='localhost', port=6379, db=0)
+QUEUE = RedisQueue('URLS')
 
 class ArticlesParse (threading.Thread):
-    def __init__(self, URLS, threadID, processID, TOTAL):
+    def __init__(self, threadID):
         threading.Thread.__init__(self)
         self.threadID = threadID
-        self.processID = processID
-        self.URLS = URLS
-        self.TOTAL = TOTAL
     def run(self):
-        print "Process " + str(self.processID) + "Starting " + str(self.threadID)
+        print "Starting " + str(self.threadID)
         self.forever()
-        print "Process " + str(self.processID) + "Exiting " + str(self.threadID)
+        print "Exiting " + str(self.threadID)
     def forever(self):
-        while not self.URLS.empty():
-            url = self.URLS.get()
-            proccessArticle(url, self.URLS, self.TOTAL)     
-def proccessArticle(url, URLS, TOTAL):
+        while not QUEUE.empty():
+            url = QUEUE.get()
+            proccessArticle(url)     
+def proccessArticle(url):
     if(isArticleInDB(url)):
         return 1
-    if(EXEC.get(url)):
+    if(REDIS.get(url)):
         return 2
     else:
-        EXEC.set(url, True)      
+        REDIS.set(url, True)      
     html = getHtml(url)
     all_urls = getUrls(html)
     for url in all_urls:
-        URLS.put(url)
+        QUEUE.put(url)
     saveToElastic(html, url)
-    TOTAL.value += 1 
-    if(TOTAL.value % WRITE == 0): 
-        with print_lock:
-            print TOTAL.value
+    REDIS.set('TOTAL', int(REDIS.get('TOTAL')) + 1)   
+
     return 0
 
 
-def startProcess(URLS, numThreads, processID, TOTAL):
+def startProcess(numThreads=THREADS):
     for i in range(numThreads):
-        thread = ArticlesParse(URLS, i, processID, TOTAL)
+        thread = ArticlesParse(i)
         thread.start()
         time.sleep(0.01)
 
-def startApp(urls):
-    URLS = multiprocessing.Queue() 
-    initEs()
-    EXEC.flushdb()
-    TOTAL = multiprocessing.Value('I', 0)
-    for url in urls:
-        URLS.put(url)
-    time.sleep(0)    
-    for ID in range(PROCESS):
-        Process = multiprocessing.Process(target=startProcess, args=(URLS, THREADS, ID, TOTAL, ))    
-        Process.start()
 
 def printUrls_fromUrl(url):
     urls = getUrls(getHtml(url))
     print urls
+
 
 
