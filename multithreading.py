@@ -28,8 +28,8 @@ def proccessArticle(url, socket):
         REDIS.set(url, True)      
     html = getHtml(socket, url)
     all_urls = getUrls(html)
-    for url in all_urls:
-        QUEUE.put(url)
+    for loc_url in all_urls:
+        QUEUE.put(loc_url)
     saveToElastic(html, url)
     REDIS.incr('TOTAL')   
     return 0
