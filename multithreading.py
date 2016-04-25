@@ -1,6 +1,6 @@
 from redis_queue_controller import RedisQueue
 import redis, time, threading
-from parser import getUrls, getHtml
+from parser import getUrls, getHtml, create_connection
 from search import saveToElastic, isArticleInDB
 
 THREADS = 100
@@ -12,6 +12,7 @@ class ArticlesParse (threading.Thread):
     def __init__(self, threadID):
         threading.Thread.__init__(self)
         self.threadID = threadID
+        self.socket = create_connection()
     def run(self):
         print "Starting " + str(self.threadID)
         self.forever()
@@ -19,15 +20,15 @@ class ArticlesParse (threading.Thread):
     def forever(self):
         while not QUEUE.empty():
             url = QUEUE.get()
-            proccessArticle(url)     
-def proccessArticle(url):
+            proccessArticle(url, self.socket)     
+def proccessArticle(url, socket):
     if(isArticleInDB(url)):
         return 1
     if(REDIS.get(url)):
         return 2
     else:
         REDIS.set(url, True)      
-    html = getHtml(url)
+    html = getHtml(socket, url)
     all_urls = getUrls(html)
     for url in all_urls:
         QUEUE.put(url)

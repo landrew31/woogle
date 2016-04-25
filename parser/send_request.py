@@ -7,7 +7,16 @@ End = '</html>'
 
 
 
-
+def create_connection():
+    context = ssl.SSLContext(ssl.PROTOCOL_TLSv1)
+    context.verify_mode = ssl.CERT_REQUIRED
+    context.check_hostname = True
+    context.load_default_certs()
+    s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    s.settimeout(10) 
+    ssl_sock = context.wrap_socket(s, server_hostname=HOST)
+    ssl_sock.connect((HOST, 443))
+    return ssl_sock
 
 def recv_end(the_socket):
     total_data=[];data=''
@@ -29,22 +38,14 @@ def recv_end(the_socket):
     return ''.join(total_data)
 
 
-def getHtml(url):
+def getHtml(socket, url):
     packet = "GET " + url + " HTTP/1.1\nHost: " + HOST + "\n\n"   
     try: 
-        context = ssl.SSLContext(ssl.PROTOCOL_TLSv1)
-        context.verify_mode = ssl.CERT_REQUIRED
-        context.check_hostname = True
-        context.load_default_certs()
-        s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        s.settimeout(10) 
-        ssl_sock = context.wrap_socket(s, server_hostname=HOST)
-        ssl_sock.connect((HOST, 443))
-        ssl_sock.send(packet) 
-        res = recv_end(ssl_sock)
-        s.close()
+        socket.send(packet) 
+        res = recv_end(socket)
     except:
-        res = 'not found'    
+        socket.close()
+        raise Exception('Lost connection')  
 
     return res
 

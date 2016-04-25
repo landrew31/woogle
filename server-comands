@@ -1,21 +1,20 @@
+sudo add-apt-repository ppa:chris-lea/redis-server
 sudo apt-get update
-sudo apt-get install git
-sudo apt-get install python-pip python-dev build-essential
+sudo apt-get install git python-pip python-dev build-essential redis-server checkinstall libreadline-gplv2-dev libncursesw5-dev libssl-dev libsqlite3-dev tk-dev libgdbm-dev libc6-dev libbz2-dev openjdk-7-jre
 sudo pip install --upgrade pip 
-sudo apt-get install build-essential checkinstall
-sudo apt-get install libreadline-gplv2-dev libncursesw5-dev libssl-dev libsqlite3-dev tk-dev libgdbm-dev libc6-dev libbz2-dev
 cd /usr/src
 sudo wget https://www.python.org/ftp/python/2.7.10/Python-2.7.10.tgz
 sudo tar xzf Python-2.7.10.tgz
 cd Python-2.7.10
 sudo ./configure
 sudo make altinstall
-sudo apt-get install openjdk-7-jre
+cd
 sudo wget https://download.elastic.co/elasticsearch/release/org/elasticsearch/distribution/deb/elasticsearch/2.3.1/elasticsearch-2.3.1.deb
 sudo dpkg -i elasticsearch-2.3.1.deb
 sudo service elasticsearch start
 git clone https://github.com/landrew31/woogle.git
 cd woogle
+git checkout multiple_processes
 sudo pip install virtualenv
 virtualenv -p /usr/local/bin/python2.7 venv
 source venv/bin/activate
