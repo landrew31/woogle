@@ -32,7 +32,7 @@ def proccessArticle(url):
     for url in all_urls:
         QUEUE.put(url)
     saveToElastic(html, url)
-    REDIS.set('TOTAL', int(REDIS.get('TOTAL')) + 1)   
+    REDIS.incr('TOTAL')   
 
     return 0
 

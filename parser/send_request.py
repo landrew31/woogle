@@ -43,7 +43,6 @@ def getHtml(url):
         ssl_sock.send(packet) 
         res = recv_end(ssl_sock)
         s.close()
-        context.remove()
     except:
         res = 'not found'    
 
