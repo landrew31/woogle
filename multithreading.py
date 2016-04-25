@@ -22,10 +22,8 @@ class ArticlesParse (threading.Thread):
             url = QUEUE.get()
             proccessArticle(url, self.socket)     
 def proccessArticle(url, socket):
-    if(isArticleInDB(url)):
-        return 1
     if(REDIS.get(url)):
-        return 2
+        return 1
     else:
         REDIS.set(url, True)      
     html = getHtml(socket, url)
@@ -34,7 +32,6 @@ def proccessArticle(url, socket):
         QUEUE.put(url)
     saveToElastic(html, url)
     REDIS.incr('TOTAL')   
-
     return 0
 
 
