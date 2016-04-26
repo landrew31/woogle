@@ -2,8 +2,9 @@ from elasticsearch import Elasticsearch
 from pprint import pprint
 from tagger import getTags
 from parser import getTextFromHtml
+import config
 
-
+es = Elasticsearch(**config.elastic)
 
 
 
@@ -11,17 +12,14 @@ from parser import getTextFromHtml
 def saveToElastic(html, url):
 	text = getTextFromHtml(html, url)
 	tags = getTags(text)
-	es = Elasticsearch()
 	es.index(index="articles", doc_type="data", body=tags)
 
 def isArticleInDB(url):
-	es = Elasticsearch()
 	res = es.search(index="articles", doc_type="data", body={"query": {"match": {"url.raw": url}}})
 	return res['hits']['total'] > 0
 
 
 def initEs():
-	es = Elasticsearch()
 	es.indices.delete(index="articles", ignore=[400, 404])
 	index_body = \
 	{
@@ -44,7 +42,6 @@ def initEs():
 	es.indices.create(index="articles", body=index_body, ignore=[400])
 
 def search_art(text):
-	es = Elasticsearch()
 	tags = text.split(" ")
 	search_obj = \
 	{

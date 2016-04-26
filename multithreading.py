@@ -1,12 +1,10 @@
 from redis_queue_controller import RedisQueue
-import redis, time, threading
+import redis, time, threading, config
 from parser import getUrls, getHtml, create_connection
 from search import saveToElastic, isArticleInDB
 
-THREADS = 100
-TOTAL = 0
-REDIS = redis.StrictRedis(host='localhost', port=6379, db=0)
-QUEUE = RedisQueue('URLS')
+REDIS = redis.StrictRedis(**config.redis)
+QUEUE = RedisQueue('URLS', **config.redis)
 
 class ArticlesParse (threading.Thread):
     def __init__(self, threadID):
@@ -35,7 +33,7 @@ def proccessArticle(url, socket):
     return 0
 
 
-def startProcess(numThreads=THREADS):
+def startProcess(numThreads=config.THREADS):
     for i in range(numThreads):
         thread = ArticlesParse(i)
         thread.start()
